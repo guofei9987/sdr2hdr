@@ -10,6 +10,19 @@ const JPEG_SOI: &[u8; 2] = b"\xff\xd8";
 const ICC_JPEG_MARKER: &[u8] = b"ICC_PROFILE\0";
 const JPEG_ICC_PAYLOAD_MAX: usize = 65_519;
 
+pub mod icc {
+    pub const ICC1: &[u8] = include_bytes!("icc/icc1.icc");
+    pub const ICC2: &[u8] = include_bytes!("icc/icc2.icc");
+
+    pub fn icc1() -> &'static [u8] {
+        ICC1
+    }
+
+    pub fn icc2() -> &'static [u8] {
+        ICC2
+    }
+}
+
 pub fn read_icc(path: impl AsRef<Path>) -> io::Result<Vec<u8>> {
     fs::read(path)
 }
@@ -227,69 +240,4 @@ fn invalid_data(message: &'static str) -> io::Error {
 
 fn invalid_input(message: &'static str) -> io::Error {
     io::Error::new(io::ErrorKind::InvalidInput, message)
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use std::fs;
-
-    #[test]
-    fn writes_png_iccp_after_ihdr() {
-        let mut png = Vec::from(PNG_SIGNATURE.as_slice());
-        write_png_chunk(&mut png, b"IHDR", &[0; 13]).unwrap();
-        write_png_chunk(&mut png, b"iCCP", &[b'o', b'l', b'd']).unwrap();
-        write_png_chunk(&mut png, b"IDAT", &[1, 2, 3]).unwrap();
-        write_png_chunk(&mut png, b"IEND", &[]).unwrap();
-
-        let output = embed_icc(&png, b"test profile").unwrap();
-        let chunks = read_png_chunks(&output).unwrap();
-
-        assert_eq!(chunks[0].name, *b"IHDR");
-        assert_eq!(chunks[1].name, *b"iCCP");
-        assert_eq!(chunks[2].name, *b"IDAT");
-        assert_eq!(
-            chunks.iter().filter(|chunk| chunk.name == *b"iCCP").count(),
-            1
-        );
-    }
-
-    #[test]
-    fn writes_jpeg_app2_icc_after_soi() {
-        let jpeg = [
-            0xff, 0xd8, 0xff, 0xe2, 0x00, 0x14, b'I', b'C', b'C', b'_', b'P', b'R', b'O', b'F',
-            b'I', b'L', b'E', 0, 1, 1, b'o', b'l', b'd', b'!', 0xff, 0xda, 0x00, 0x0c, 1, 2, 3, 4,
-        ];
-        let output = embed_icc(&jpeg, b"test profile").unwrap();
-
-        assert_eq!(&output[..2], JPEG_SOI);
-        assert_eq!(&output[2..4], &[0xff, 0xe2]);
-        assert!(
-            output
-                .windows(ICC_JPEG_MARKER.len())
-                .any(|w| w == ICC_JPEG_MARKER)
-        );
-        assert!(!output.windows(4).any(|w| w == b"old!"));
-    }
-
-    #[test]
-    fn embeds_icc_into_sample_png_file() {
-        let input = sample_png_path();
-        let image = fs::read(input).unwrap();
-        let icc = fs::read("bin/icc1.bin").unwrap();
-
-        let output = embed_icc(&image, &icc).unwrap();
-        let chunks = read_png_chunks(&output).unwrap();
-
-        assert_eq!(chunks[0].name, *b"IHDR");
-        assert!(chunks.iter().any(|chunk| chunk.name == *b"iCCP"));
-        assert_eq!(
-            chunks.iter().filter(|chunk| chunk.name == *b"iCCP").count(),
-            1
-        );
-    }
-
-    fn sample_png_path() -> &'static str {
-        "file/原图.png"
-    }
 }

@@ -3,6 +3,10 @@ name = "sdr2hdr"
 version = "0.1.0"
 edition = "2024"
 
+[[test]]
+name = "embed_icc"
+path = "test/embed_icc.rs"
+
 [dependencies]
 crc32fast = "1.4"
 flate2 = "1.0"
