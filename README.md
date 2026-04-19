@@ -1,74 +1,79 @@
 # sdr2hdr
 
-给 PNG 或 JPEG 图片嵌入 ICC 配置文件。
+Embed built-in ICC profiles into PNG or JPEG images.
 
-## 使用
+中文文档: [README_cn.md](README_cn.md)
 
-使用 type 号选择内置 ICC：
-
-```bash
-cargo run -- <输入图片> [type] [输出图片]
-```
-
-示例：
+## Install
 
 ```bash
-cargo run -- assets/images/original.png
-cargo run -- assets/images/original.png 1
-cargo run -- assets/images/original.png 1 assets/images/original_hdr.png
+cargo install sdr2hdr
 ```
 
-不传 `type` 时默认使用 `1`。
+## CLI
 
-不传输出路径时，会在原文件名后追加 `_hdr`：
+Use a profile type to select a built-in ICC profile:
+
+```bash
+sdr2hdr <input-image> [type] [output-image]
+```
+
+Examples:
+
+```bash
+sdr2hdr image.png
+sdr2hdr image.png 1
+sdr2hdr image.png 2 image_hdr.png
+```
+
+When `type` is omitted, `1` is used.
+
+When `output-image` is omitted, `_hdr` is appended before the extension:
 
 ```text
-assets/images/original.png -> assets/images/original_hdr.png
+image.png -> image_hdr.png
 ```
 
-## 代码调用
+## Library
 
-使用 type 号：
+Use a profile type:
 
 ```rust
-sdr2hdr::embed_icc_file_with_type(
-    "assets/images/original.png",
-    1,
-    "assets/images/original_hdr.png",
-)?;
+sdr2hdr::embed_icc_file_with_type("image.png", 1, "image_hdr.png")?;
 ```
 
-直接使用内置 ICC 字节：
+Use built-in ICC bytes directly:
 
 ```rust
 let output = sdr2hdr::embed_icc(&image_bytes, sdr2hdr::icc::icc1())?;
 ```
 
-## 示例
+## Profile Types
 
 ```text
-example/embed_icc.rs          给用户参考的示例代码
-assets/images/original.png    示例输入图
-assets/images/original_hdr.png 已嵌入 ICC 的示例输出图
+1  icc1.icc
+2  icc2.icc
 ```
 
-运行示例代码：
+## Repository Examples
+
+The repository contains example code and sample images for development:
+
+```text
+example/embed_icc.rs
+assets/images/original.png
+assets/images/original_hdr.png
+```
+
+These files are not included in the crates.io package.
+
+Run the repository example:
 
 ```bash
 cargo run --example embed_icc
 ```
 
-## 目录
-
-```text
-src/                 源码
-src/icc/             编译进代码的 ICC 文件
-example/             给用户参考的示例代码
-assets/images/       示例和测试共用的图片
-test/                集成测试
-```
-
-## 测试
+## Test
 
 ```bash
 cargo test

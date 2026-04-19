@@ -2,6 +2,15 @@
 name = "sdr2hdr"
 version = "0.1.0"
 edition = "2024"
+rust-version = "1.85"
+description = "Embed built-in ICC profiles into PNG and JPEG images."
+license = "MIT"
+repository = "https://github.com/guofei9987/sdr2hdr"
+homepage = "https://github.com/guofei9987/sdr2hdr"
+readme = "README.md"
+keywords = ["icc", "png", "jpeg", "image", "hdr"]
+categories = ["command-line-utilities", "multimedia::images"]
+exclude = ["assets/**", "example/**", "test/**"]
 
 [[test]]
 name = "embed_icc"
