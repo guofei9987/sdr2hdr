@@ -6,6 +6,13 @@ const ICC_JPEG_MARKER: &[u8] = b"ICC_PROFILE\0";
 const SAMPLE_PNG: &[u8] = include_bytes!("../assets/images/original.png");
 
 #[test]
+fn selects_icc_by_type() {
+    assert_eq!(sdr2hdr::icc::by_type(1).unwrap(), sdr2hdr::icc::icc1());
+    assert_eq!(sdr2hdr::icc::by_type(2).unwrap(), sdr2hdr::icc::icc2());
+    assert!(sdr2hdr::icc::by_type(0).is_err());
+}
+
+#[test]
 fn embeds_icc_into_sample_png_file() {
     let output = sdr2hdr::embed_icc(SAMPLE_PNG, sdr2hdr::icc::icc1()).unwrap();
     let chunks = read_png_chunks(&output);

@@ -4,18 +4,21 @@
 
 ## 使用
 
-使用外部 ICC 文件：
+使用 type 号选择内置 ICC：
 
 ```bash
-cargo run -- <输入图片> <ICC文件> [输出图片]
+cargo run -- <输入图片> [type] [输出图片]
 ```
 
 示例：
 
 ```bash
-cargo run -- assets/images/original.png src/icc/icc1.icc
-cargo run -- assets/images/original.png src/icc/icc1.icc assets/images/original_hdr.png
+cargo run -- assets/images/original.png
+cargo run -- assets/images/original.png 1
+cargo run -- assets/images/original.png 1 assets/images/original_hdr.png
 ```
+
+不传 `type` 时默认使用 `1`。
 
 不传输出路径时，会在原文件名后追加 `_hdr`：
 
@@ -25,20 +28,20 @@ assets/images/original.png -> assets/images/original_hdr.png
 
 ## 代码调用
 
-使用编译进代码的 ICC：
+使用 type 号：
+
+```rust
+sdr2hdr::embed_icc_file_with_type(
+    "assets/images/original.png",
+    1,
+    "assets/images/original_hdr.png",
+)?;
+```
+
+直接使用内置 ICC 字节：
 
 ```rust
 let output = sdr2hdr::embed_icc(&image_bytes, sdr2hdr::icc::icc1())?;
-```
-
-使用外部 ICC 文件：
-
-```rust
-sdr2hdr::embed_icc_file(
-    "assets/images/original.png",
-    "src/icc/icc1.icc",
-    "assets/images/original_hdr.png",
-)?;
 ```
 
 ## 示例

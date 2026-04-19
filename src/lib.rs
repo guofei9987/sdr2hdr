@@ -11,6 +11,8 @@ const ICC_JPEG_MARKER: &[u8] = b"ICC_PROFILE\0";
 const JPEG_ICC_PAYLOAD_MAX: usize = 65_519;
 
 pub mod icc {
+    use std::io;
+
     pub const ICC1: &[u8] = include_bytes!("icc/icc1.icc");
     pub const ICC2: &[u8] = include_bytes!("icc/icc2.icc");
 
@@ -20,6 +22,17 @@ pub mod icc {
 
     pub fn icc2() -> &'static [u8] {
         ICC2
+    }
+
+    pub fn by_type(icc_type: u8) -> io::Result<&'static [u8]> {
+        match icc_type {
+            1 => Ok(ICC1),
+            2 => Ok(ICC2),
+            _ => Err(io::Error::new(
+                io::ErrorKind::InvalidInput,
+                "ICC type must be 1 or 2",
+            )),
+        }
     }
 }
 
@@ -35,6 +48,16 @@ pub fn embed_icc_file(
     let image = fs::read(input_image.as_ref())?;
     let icc = read_icc(icc_file)?;
     let output = embed_icc(&image, &icc)?;
+    fs::write(output_image, output)
+}
+
+pub fn embed_icc_file_with_type(
+    input_image: impl AsRef<Path>,
+    icc_type: u8,
+    output_image: impl AsRef<Path>,
+) -> io::Result<()> {
+    let image = fs::read(input_image.as_ref())?;
+    let output = embed_icc(&image, icc::by_type(icc_type)?)?;
     fs::write(output_image, output)
 }
 
