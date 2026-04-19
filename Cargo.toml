@@ -7,6 +7,10 @@ edition = "2024"
 name = "embed_icc"
 path = "test/embed_icc.rs"
 
+[[example]]
+name = "embed_icc"
+path = "example/embed_icc.rs"
+
 [dependencies]
 crc32fast = "1.4"
 flate2 = "1.0"
