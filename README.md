@@ -1,8 +1,12 @@
 # sdr2hdr
 
-Embed built-in ICC profiles into PNG or JPEG images.
+Make PNG or JPEG images appear brighter using HDR techniques.
 
 中文文档: [README_cn.md](README_cn.md)
+
+## Try it online
+
+[https://www.guofei.site/os/sdr2hdr.html](https://www.guofei.site/os/sdr2hdr.html)
 
 ## Install
 
@@ -12,10 +16,8 @@ cargo install sdr2hdr
 
 ## CLI
 
-Use a profile type to select a built-in ICC profile:
-
 ```bash
-sdr2hdr <input-image> [type] [output-image]
+sdr2hdr <input-image> [mode] [output-image]
 ```
 
 Examples:
@@ -26,9 +28,9 @@ sdr2hdr image.png 1
 sdr2hdr image.png 2 image_hdr.png
 ```
 
-When `type` is omitted, `1` is used.
+If `mode` is omitted, `1` is used.
 
-When `output-image` is omitted, `_hdr` is appended before the extension:
+If `output-image` is omitted, `_hdr` is appended before the extension:
 
 ```text
 image.png -> image_hdr.png
@@ -36,28 +38,28 @@ image.png -> image_hdr.png
 
 ## Library
 
-Use a profile type:
+Use a built-in HDR mode:
 
 ```rust
 sdr2hdr::embed_icc_file_with_type("image.png", 1, "image_hdr.png")?;
 ```
 
-Use built-in ICC bytes directly:
+Process image bytes directly:
 
 ```rust
 let output = sdr2hdr::embed_icc(&image_bytes, sdr2hdr::icc::icc1())?;
 ```
 
-## Profile Types
+## Modes
 
 ```text
-1  icc1.icc
-2  icc2.icc
+1  HDR Mode 1
+2  HDR Mode 2
 ```
 
 ## Repository Examples
 
-The repository contains example code and sample images for development:
+The repository includes example code and sample images:
 
 ```text
 example/embed_icc.rs
@@ -67,7 +69,7 @@ assets/images/original_hdr.png
 
 These files are not included in the crates.io package.
 
-Run the repository example:
+Run the example:
 
 ```bash
 cargo run --example embed_icc
